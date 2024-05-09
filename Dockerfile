@@ -31,6 +31,23 @@ RUN yarn build
 
 FROM frontend-builder-${FRONTEND_BUILD_MODE} as frontend-builder
 
+# Postgres Database Section
+## Define a separate stage for Postgres
+FROM postgres:14.1-alpine AS postgres
+
+# Create directory for initialization scripts
+RUN mkdir /docker-entrypoint-initdb.d
+
+# Copy schema definition file
+COPY schema.sql /docker-entrypoint-initdb.d/schema.sql
+
+# Expose Postgres port
+EXPOSE 5432
+
+# Set default command for Postgres
+ENTRYPOINT ["postgres", "-d"]
+
+# End of Postgres Section
 FROM python:3.8-slim-bookworm
 
 EXPOSE 5000
@@ -85,6 +102,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   && rm /tmp/simba_odbc.zip \
   && rm -rf /tmp/simba; fi
 
+RUN /etc/poetry/bin/poetry add pandas sqlalchemy
 WORKDIR /app
 
 ENV POETRY_VERSION=1.6.1
@@ -101,9 +119,11 @@ ARG INSTALL_GROUPS="main,all_ds,dev"
 RUN /etc/poetry/bin/poetry install --only $INSTALL_GROUPS $POETRY_OPTIONS
 
 COPY --chown=redash . /app
+COPY Schema/load_data.py /app/Schema/load_data.py
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
 RUN chown redash /app
+RUN chmod +x /app/Schema/load_data.py
 USER redash
 
-ENTRYPOINT ["/app/bin/docker-entrypoint"]
+ENTRYPOINT ["/app/bin/docker-entrypoint", "--data-load", "/app/Schema/load_data.py"]
 CMD ["server"]
