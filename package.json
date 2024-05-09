@@ -70,7 +70,9 @@
     "react-ace": "^9.1.1",
     "react-dom": "^16.14.0",
     "react-grid-layout": "^0.18.2",
+    "react-icons": "^5.2.1",
     "react-resizable": "^1.10.1",
+    "react-syntax-highlighter": "^15.5.0",
     "react-virtualized": "^9.21.2",
     "sql-formatter": "git+https://github.com/getredash/sql-formatter.git",
     "universal-router": "^8.3.0",
@@ -179,8 +181,8 @@
     ]
   },
   "browser": {
-      "fs": false,
-      "path": false
+    "fs": false,
+    "path": false
   },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
