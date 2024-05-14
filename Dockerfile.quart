@@ -5,6 +5,6 @@ WORKDIR /app
 COPY quart/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY quart/api/src ./
+COPY quart ./
 
 CMD ["hypercorn", "api:app", "-b", "0.0.0.0:8000"]
