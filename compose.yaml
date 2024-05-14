@@ -79,3 +79,23 @@ services:
       CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID:-""}
       CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY:-""}
       CYPRESS_COVERAGE: ${CYPRESS_COVERAGE:-true}
+  quart_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.quart
+    command: [ "hypercorn", "api:app", "-b", "0.0.0.0:5057" ]
+    ports:
+      - "5057:5057"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - server
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    depends_on:
+      - server
+      - quart_server

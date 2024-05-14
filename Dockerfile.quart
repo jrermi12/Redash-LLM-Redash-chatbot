@@ -1,0 +1,10 @@
+FROM python:3.9
+
+WORKDIR /app
+
+COPY quart/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY quart/api/src ./
+
+CMD ["hypercorn", "api:app", "-b", "0.0.0.0:8000"]
